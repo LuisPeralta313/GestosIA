@@ -1,0 +1,14 @@
+-Descargar Repositorio.
+-Abrir Visual Studio -- abrir carpeta
+-Nueva terminal--->Crear Entorno virtual--> python -m venv venv
+-Terminal para activar entorno: .\venv\Scripts\Activate.ps1 
+-Terminal librerias: pip install opencv-python==4.7.0.68 mediapipe scikit-learn==1.2.0
+
+Correr en este orden. 
+python TomandoDatos.py
+python CreadorDeDataset.py
+python EntrenarModelo.py
+python Modelo.py
+
+
+
