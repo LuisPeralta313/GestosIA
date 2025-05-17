@@ -2,23 +2,23 @@ import pickle
 import cv2
 import mediapipe as mp
 import numpy as np
-import string  # NUEVO: para generar el diccionario de letras
 
 # Cargar modelo
 model_dict = pickle.load(open('./model.p', 'rb'))
 model = model_dict['model']
 
-# Diccionario automático de etiquetas: {0: 'A', 1: 'B', ..., 25: 'Z'}
-labels_dict = {i: letter for i, letter in enumerate(string.ascii_uppercase)}
-
 # Captura de video
 cap = cv2.VideoCapture(0)
 
-# Inicializar MediaPipe Hands
+# MediaPipe Hands
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
+
+# Texto acumulado
+accumulated_text = ""
+last_prediction = ""
 
 while True:
     data_aux = []
@@ -30,6 +30,8 @@ while True:
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     results = hands.process(frame_rgb)
+    predicted_character = ""
+
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
             mp_drawing.draw_landmarks(
@@ -38,17 +40,13 @@ while True:
                 mp_drawing_styles.get_default_hand_connections_style())
 
         for hand_landmarks in results.multi_hand_landmarks:
-            for i in range(len(hand_landmarks.landmark)):
-                x = hand_landmarks.landmark[i].x
-                y = hand_landmarks.landmark[i].y
-                x_.append(x)
-                y_.append(y)
+            for lm in hand_landmarks.landmark:
+                x_.append(lm.x)
+                y_.append(lm.y)
 
-            for i in range(len(hand_landmarks.landmark)):
-                x = hand_landmarks.landmark[i].x
-                y = hand_landmarks.landmark[i].y
-                data_aux.append(x - min(x_))
-                data_aux.append(y - min(y_))
+            for lm in hand_landmarks.landmark:
+                data_aux.append(lm.x - min(x_))
+                data_aux.append(lm.y - min(y_))
 
         x1 = int(min(x_) * W) - 10
         y1 = int(min(y_) * H) - 10
@@ -56,15 +54,28 @@ while True:
         y2 = int(max(y_) * H) + 10
 
         prediction = model.predict([np.asarray(data_aux)])
-        predicted_character = labels_dict[int(prediction[0])]
+        predicted_character = prediction[0]
+        last_prediction = predicted_character
 
-        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 4)
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)
         cv2.putText(frame, predicted_character, (x1, y1 - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.3, (0, 0, 0), 3, cv2.LINE_AA)
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2, cv2.LINE_AA)
 
-    cv2.imshow('frame', frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):  # Presionar 'q' para cerrar
+    # Mostrar texto acumulado con letra más pequeña y color verde claro
+    cv2.putText(frame, accumulated_text, (10, 40),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (144, 238, 144), 2, cv2.LINE_AA)
+
+    cv2.imshow('Sign Language Detector', frame)
+
+    key = cv2.waitKey(1) & 0xFF
+    if key == ord('q'):
         break
+    elif key == ord('i'):
+        accumulated_text += " "
+    elif key == ord('c'):
+        accumulated_text = ""
+    elif key == ord('a') and last_prediction:
+        accumulated_text += last_prediction
 
 cap.release()
 cv2.destroyAllWindows()
