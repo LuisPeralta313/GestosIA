@@ -20,6 +20,10 @@ hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 accumulated_text = ""
 last_prediction = ""
 
+# Limpiar archivo de texto al iniciar
+with open("resultado.txt", "w") as f:
+    f.write("")
+
 while True:
     data_aux = []
     x_ = []
@@ -55,7 +59,13 @@ while True:
 
         prediction = model.predict([np.asarray(data_aux)])
         predicted_character = prediction[0]
-        last_prediction = predicted_character
+
+        # Solo guardar si cambia la predicción
+        if predicted_character != last_prediction:
+            accumulated_text += predicted_character
+            with open("resultado.txt", "a") as f:
+                f.write(predicted_character)
+            last_prediction = predicted_character
 
         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)
         cv2.putText(frame, predicted_character, (x1, y1 - 10),
@@ -72,10 +82,12 @@ while True:
         break
     elif key == ord('i'):
         accumulated_text += " "
+        with open("resultado.txt", "a") as f:
+            f.write(" ")
     elif key == ord('c'):
         accumulated_text = ""
-    elif key == ord('a') and last_prediction:
-        accumulated_text += last_prediction
+        with open("resultado.txt", "a") as f:
+            f.write("\n[Texto limpio]\n")
 
 cap.release()
 cv2.destroyAllWindows()
