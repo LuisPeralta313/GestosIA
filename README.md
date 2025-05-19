@@ -16,7 +16,8 @@ pip install opencv-python mediapipe scikit-learn numpy pillow seaborn matplotlib
         Ejecuta EntrenarModelo.py para entrenar un clasificador Random Forest
     4. Usar interfaz en tiempo real
         Ejecuta Camara.py para detectar señas en tiempo real
-
+4. Dataset propio utilizado para el entrenamiento del modelo: 
+https://drive.google.com/file/d/13VATcKw8D2mQ8mawv3jgg5mm72k2OkNX/view?usp=sharing
 4. Crear y activar un entorno virtual:
 ```bash
 python -m venv venv
@@ -29,6 +30,8 @@ pip install -r requirements.txt
 -Nueva terminal--->Crear Entorno virtual--> python -m venv venv
 -Terminal para activar entorno: .\venv\Scripts\Activate.ps1 
 -Terminal librerias: pip install opencv-python==4.7.0.68 mediapipe scikit-learn==1.2.0
+
+
 
 
 
