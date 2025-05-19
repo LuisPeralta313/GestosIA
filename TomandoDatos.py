@@ -9,7 +9,7 @@ if not os.path.exists(DATA_DIR):
 
 # Lista de letras del alfabeto
 classes = list(string.ascii_uppercase)  # ['A', 'B', ..., 'Z']
-dataset_size = 100  # Cantidad de imágenes por letra
+dataset_size = 250  # Cantidad de imágenes por letra
 
 cap = cv2.VideoCapture(0)
 

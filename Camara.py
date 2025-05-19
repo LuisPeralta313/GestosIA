@@ -19,7 +19,7 @@ hands = mp_hands.Hands(static_image_mode=True, min_detection_confidence=0.3)
 accumulated_text = ""
 last_prediction = ""
 consecutive_count = 0
-# Número de frames consecutivos requeridos. cambiar si se cree q es muy rápido o lento.
+# Número de frames consecutivos requeridos. Cambiar si se cree que es muy rápido o lento.
 STABILITY_THRESHOLD = 8
 
 # Limpiar archivo de texto al iniciar
@@ -40,24 +40,26 @@ canvas.pack()
 frame_buttons = tk.Frame(root)
 frame_buttons.pack()
 
-
 def add_space():
     global accumulated_text
     accumulated_text += " "
     with open("resultado.txt", "a") as f:
         f.write(" ")
 
-
 def clear_text():
     global accumulated_text
-    accumulated_text = ""
-    with open("resultado.txt", "a") as f:
-        f.write("\n[Texto limpio]\n")
-
+    if accumulated_text:  # Verificar que haya texto para eliminar
+        accumulated_text = accumulated_text[:-1]  # Eliminar el último carácter
+        # Reescribir el archivo con el texto actualizado
+        with open("resultado.txt", "r") as f:
+            current_content = f.read()
+        if current_content:
+            with open("resultado.txt", "w") as f:
+                f.write(current_content[:-1])  # Eliminar el último carácter del archivo
+        label_text.config(text=accumulated_text)  # Actualizar la interfaz
 
 def exit_app():
     root.quit()
-
 
 btn_space = tk.Button(frame_buttons, text="Espacio", command=add_space)
 btn_space.grid(row=0, column=0, padx=10)
@@ -71,7 +73,6 @@ btn_exit.grid(row=0, column=2, padx=10)
 cap = cv2.VideoCapture(0)
 
 current_stable_prediction = ""
-
 
 def update_frame():
     global accumulated_text, last_prediction, consecutive_count, current_stable_prediction
@@ -119,7 +120,7 @@ def update_frame():
         cv2.putText(frame, predicted_character, (x1, y1 - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2, cv2.LINE_AA)
 
-        # Estabilidad por repetición.
+        # Estabilidad por repetición
         if predicted_character == current_stable_prediction:
             consecutive_count += 1
         else:
@@ -141,7 +142,6 @@ def update_frame():
     canvas.configure(image=imgtk)
 
     root.after(10, update_frame)
-
 
 update_frame()
 root.mainloop()
